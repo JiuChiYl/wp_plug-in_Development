@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>config</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+</head>
+<style>
+    #bilibili_bod_top {
+        padding: 0px;
+        margin: 0;
+    }
+
+    #bilibili_bad_top * {
+        padding: 0;
+        margin: 0;
+    }
+    #conf_bod {
+        width: 90%;
+    min-height: 250px;
+    /* padding: 20px 30px; */
+    background-color: rgb(248, 248, 248);
+    border: 1px solid #c1c1c1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    }
+
+    #addconfig * {
+        transition: .25s linear !important;
+    }
+
+    #addconfig {
+        width: 300px;
+        height: 250px;
+        border: 1px solid #c9c9c9;
+        background-color: #fff;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: .25s linear;
+        margin: 30px 35px;
+    }
+
+    #addconfig:hover {
+        border-color: #0099ff;
+    }
+
+    #addconfig span:nth-of-type(1) {
+        left: 30px;
+        position: relative;
+        width: 10px;
+        height: 50px;
+        background-color: #c7c7c7;
+    }
+
+    #addconfig span:nth-of-type(2) {
+        position: relative;
+        width: 50px;
+        height: 10px;
+        background-color: #c7c7c7;
+    }
+
+    #addconfig:hover span {
+        background-color: #0099ff;
+    }
+
+    .keyloa {
+        max-width: 270px;
+        min-width: 270px;
+        max-height: 141px;
+        min-height: 141px;
+        padding: 0px 5px;
+    }
+
+    .mored_configs {
+          width: 300px;
+    height: 250px;
+    border: 1px solid #c9c9c9;
+    background-color: #fff;
+    border-radius: 5px;
+    margin: 30px 35px;
+    }
+    .mored_configs p{
+        margin: 0px;
+    }
+    .mored_configs form {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    height: 100%;
+    align-items: center;
+}
+.sa_re{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+</style>
+
+<body id="bilibili_bod_top">
+    <h1>数据获取配置</h1>
+    <div id="conf_bod">
+        <div id="addconfig" title="新建配置">
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+    <script>
+        var i = -1;
+        var n = 5;
+        var string = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
+        var arrays = Object.values(string);
+        var datanum = 0;
+        var configName = '';
+        $("#addconfig").click(function () {
+            for(var q = 0; q < n; q++){
+                configName += arrays[Math.floor(Math.random()*52)];
+            }
+            if(i < $(".mored_configs").length){
+                i++;
+                console.log(i)
+                $("#conf_bod").append(`
+                    <div class="mored_configs" id="config_block${i}">
+                        <form method="post">
+                            <p>配置${configName}</p>
+                            <input type="text" id="userid${i}" placeholder="此处填用户id">
+                            <textarea id="keys${i}" class="keyloa" placeholder="此处填写SESSDATA"></textarea>
+                            <div class="sa_re">
+                                <input type="button" value="删除此配置" data-num="${i}" class="remv">
+                                <input type="button" value="保存并使用此配置" data-num="${i}" class="saveby">
+                                </div>
+                        </form>
+                    </div>
+            `);
+            configName = "";
+            $(".saveby").unbind("click").bind('click','',function(){//防止重复绑定
+                datanum = $(this).attr('data-num');
+            });
+            $(".remv").unbind("click").bind('click','',function(){//防止重复绑定
+                datanum = $(this).attr('data-num');
+                $("#config_block"+datanum).remove();
+                i--;
+            });
+        }
+    });
+    </script>
+</body>
+
+</html>

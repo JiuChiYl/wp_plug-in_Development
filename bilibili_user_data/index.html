@@ -18,15 +18,16 @@
         padding: 0;
         margin: 0;
     }
+
     #conf_bod {
         width: 90%;
-    min-height: 250px;
-    /* padding: 20px 30px; */
-    background-color: rgb(248, 248, 248);
-    border: 1px solid #c1c1c1;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+        min-height: 250px;
+        /* padding: 20px 30px; */
+        background-color: rgb(248, 248, 248);
+        border: 1px solid #c1c1c1;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
     }
 
     #addconfig * {
@@ -79,33 +80,52 @@
     }
 
     .mored_configs {
-          width: 300px;
-    height: 250px;
-    border: 1px solid #c9c9c9;
-    background-color: #fff;
-    border-radius: 5px;
-    margin: 30px 35px;
+        width: 300px;
+        height: 250px;
+        border: 1px solid #c9c9c9;
+        background-color: #fff;
+        border-radius: 5px;
+        margin: 30px 35px;
     }
-    .mored_configs p{
+
+    .mored_configs p {
         margin: 0px;
     }
+
     .mored_configs form {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    height: 100%;
-    align-items: center;
-}
-.sa_re{
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    align-items: center;
-}
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+        height: 100%;
+        align-items: center;
+    }
+
+    .sa_re {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+    }
+    #momxadde{
+        background-color: #0099ff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: #fff;
+        padding: 20px 0px;
+    }
+    #momxadde *{
+        margin: 0;
+    }
 </style>
 
 <body id="bilibili_bod_top">
+    <h1>基础配置</h1>
+    <div id="momxadde">
+        <h4>当前使用的配置文件</h4>
+        <b><p id="show_config" style="color:#0099ff;background-color: #fff; padding: 10px 25px;border-radius: 5px;margin: 5px;"></p></b>
+    </div>
     <h1>数据获取配置</h1>
     <div id="conf_bod">
         <div id="addconfig" title="新建配置">
@@ -114,43 +134,118 @@
         </div>
     </div>
     <script>
+        const domain = window.location.host;
+        console.log("your domain: " + window.location.protocol);
         var i = -1;
         var n = 5;
         var string = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz";
         var arrays = Object.values(string);
         var datanum = 0;
         var configName = '';
-        $("#addconfig").click(function () {
-            for(var q = 0; q < n; q++){
-                configName += arrays[Math.floor(Math.random()*52)];
-            }
-            if(i < $(".mored_configs").length){
-                i++;
-                console.log(i)
-                $("#conf_bod").append(`
-                    <div class="mored_configs" id="config_block${i}">
-                        <form method="post">
-                            <p>配置${configName}</p>
-                            <input type="text" id="userid${i}" placeholder="此处填用户id">
-                            <textarea id="keys${i}" class="keyloa" placeholder="此处填写SESSDATA"></textarea>
-                            <div class="sa_re">
-                                <input type="button" value="删除此配置" data-num="${i}" class="remv">
-                                <input type="button" value="保存并使用此配置" data-num="${i}" class="saveby">
+        $(
+            function () {
+                $.ajax({
+                    url: window.location.protocol + "/wp-content/plugins/bilibili_user_data/redat.php",
+                    dataType: 'json',
+                    type: 'post',
+                    data: { code: 200 },
+                    success: function (res) {
+                        $("#show_config").text(res[2].code);
+                        //输出
+                        console.log(res);
+                        for (var id = 0; id < res[1].length; id++) {
+                            $("#conf_bod").append(`
+                                <div class="mored_configs" id="config_block${id}">
+                                    <form method="post">
+                                        <p>配置${res[1][id]}</p>
+                                        <input type="hidden" value="${res[1][id]}" id="conf_name${id}">
+                                        <input type="text" id="userid${id}" value="${res[0][id]['uid']}" placeholder="此处填用户id">
+                                        <textarea id="keys${id}" class="keyloa" placeholder="此处填写SESSDATA">${res[0][id]['SESSDATA']}</textarea>
+                                        <div class="sa_re">
+                                            <input type="button" value="删除此配置" data-num="${id}" class="remv">
+                                            <input type="button" value="使用此配置" data-num="${id}" class="saveby">
+                                            </div>
+                                    </form>
                                 </div>
-                        </form>
-                    </div>
-            `);
-            configName = "";
-            $(".saveby").unbind("click").bind('click','',function(){//防止重复绑定
-                datanum = $(this).attr('data-num');
-            });
-            $(".remv").unbind("click").bind('click','',function(){//防止重复绑定
-                datanum = $(this).attr('data-num');
-                $("#config_block"+datanum).remove();
-                i--;
-            });
-        }
-    });
+                        `);
+                            i = id;
+                        }
+                        $(".saveby").unbind("click").bind('click', '', function () {//防止重复绑定
+                            datanum = $(this).attr('data-num');
+                            var confName = $("#conf_name" + datanum).val();
+                            var userid = $("#userid" + datanum).val();
+                            var keys = $("#keys" + datanum).val();
+                            $.ajax({
+                                url: window.location.protocol + "/wp-content/plugins/bilibili_user_data/redat.php",
+                                dataType: 'json',
+                                type: 'post',
+                                data: { confName: confName, userid: userid, keys: keys, code: 100 },
+                                success: function (res) {
+                                    $("#show_config").text(res.code);
+                                    alert(res.message);
+                                }
+                            });
+                        });
+                        $(".remv").unbind("click").bind('click', '', function () {//防止重复绑定
+                            var char = confirm("确定要删除这个配置吗?\n(它将会消失很久,真的很久!)");
+                            if (char == true) {
+                                datanum = $(this).attr('data-num');
+                                var confName = $("#conf_name" + datanum).val();
+                                $("#config_block" + datanum).remove();
+                                $.ajax({
+                                    url: window.location.protocol + "/wp-content/plugins/bilibili_user_data/redat.php",
+                                    dataType: 'json',
+                                    type: 'post',
+                                    data: { confName: confName, code: 300 },
+                                    success: function (res) {
+                                        $("#show_config").text(res.code);
+                                        alert(res.message);
+                                    }
+                                });
+                            } else {
+                            }
+                        });
+                    }
+                });
+                $("#addconfig").click(function () {
+                    for (var q = 0; q < n; q++) {
+                        configName += arrays[Math.floor(Math.random() * 52)];
+                    }
+                    i++;
+                    console.log(i)
+                    $("#conf_bod").append(`
+                            <div class="mored_configs" id="config_block${i}">
+                                <form method="post">
+                                    <p>配置${configName}</p>
+                                    <input type="hidden" value="${configName}" id="conf_name${i}">
+                                    <input type="text" id="userid${i}" placeholder="此处填用户id">
+                                    <textarea id="keys${i}" class="keyloa" placeholder="此处填写SESSDATA"></textarea>
+                                    <div class="sa_re">
+                                        <input type="button" value="保存并使用此配置" data-num="${i}" class="saveby">
+                                        </div>
+                                </form>
+                            </div>
+                    `);
+                    configName = "";
+                    $(".saveby").unbind("click").bind('click', '', function () {//防止重复绑定
+                        datanum = $(this).attr('data-num');
+                        var confName = $("#conf_name" + datanum).val();
+                        var userid = $("#userid" + datanum).val();
+                        var keys = $("#keys" + datanum).val();
+                        $.ajax({
+                            url: window.location.protocol + "/wp-content/plugins/bilibili_user_data/redat.php",
+                            dataType: 'json',
+                            type: 'post',
+                            data: { confName: confName, userid: userid, keys: keys, code: 100 },
+                            success: function (res) {
+                                $("#show_config").text(res.code);
+                                alert(res.message);
+                            }
+                        });
+                    });
+                });
+            }
+        );
     </script>
 </body>
 

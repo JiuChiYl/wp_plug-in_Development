@@ -238,6 +238,7 @@
                             type: 'post',
                             data: { confName: confName, userid: userid, keys: keys, code: 100 },
                             success: function (res) {
+                                // 插入此id的标签以显示数据内容
                                 $("#show_config").text(res.code);
                                 alert(res.message);
                             }
